@@ -2,7 +2,10 @@ import re
 
 def sentences(iterable, endPunc=r"\.;"):
     "Iterates sentences in a source"
-    sen = re.compile(r"(.+)["+endPunc+r"]\s*(.*)")
+    if not endPunc in sentences._reCache:
+        sentences._reCache[endPunc] = re.compile(r"(.+)["+endPunc+r"]\s*(.*)")
+    sen = sentences._reCache[endPunc]
+
     buf = []
     for line in iterable:
         line = line.strip()
@@ -20,5 +23,7 @@ def sentences(iterable, endPunc=r"\.;"):
             else:
                 buf.append(line)
                 line = ''
+
+sentences._reCache = {}
 
 # vim:set ts=4 sw=4 expandtab:
