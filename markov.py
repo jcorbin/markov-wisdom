@@ -30,7 +30,7 @@ class Parse(object):
                     line = rest
                 else:
                     buf.append(line)
-                    line = ''
+                    break
 
     _phraseReCache = {}
 
