@@ -15,10 +15,10 @@ class Parse(object):
         sen = cls._sentenceReCache[endPunc]
 
         buf = []
-        for line in iterable:
-            line = line.strip()
-            while len(line):
-                m = sen.match(line)
+        for chunk in iterable:
+            chunk = chunk.strip()
+            while len(chunk):
+                m = sen.match(chunk)
                 if m:
                     (frag, rest) = m.groups()
                     if len(buf):
@@ -27,9 +27,9 @@ class Parse(object):
                         buf = []
                     else:
                         yield frag
-                    line = rest
+                    chunk = rest
                 else:
-                    buf.append(line)
+                    buf.append(chunk)
                     break
 
     _phraseReCache = {}
