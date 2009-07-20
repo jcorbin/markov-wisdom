@@ -1,4 +1,5 @@
 import re
+import random
 
 class Parse(object):
     @classmethod
@@ -102,5 +103,73 @@ class Parse(object):
                 buf.pop(0)
                 yield tuple(buf)
 
+class Corpus(object):
+    def __init__(self, source):
+        self._source = source
+        self._db = None
+
+    @property
+    def source(self):
+        source = self._source
+        if type(source) == str:
+            source = open(source, 'r')
+        return source
+
+    def phrases(self, trailing=(None, None)):
+        for sentence in Parse.sentences(self.source):
+            sentence = sentence.lower()
+            for phrase in Parse.phrases(sentence, trailing=trailing):
+                yield phrase
+
+    def buildDb(self):
+        db = {}
+        for phrase in self.phrases(trailing=(1, 2)):
+            key = (phrase[0], phrase[1])
+            if not key in db:
+                db[key] = set()
+            db[key].add(phrase[2])
+        return db
+
+    @property
+    def db(self):
+        if self._db is None:
+            self._db = self.buildDb()
+        return self._db
+
+    def nextword(self, wordpair=None):
+        if wordpair is None:
+            wordpair = (None, None)
+        if not wordpair in self.db:
+            return None
+        choices = list(self.db[wordpair])
+        if len(choices) == 1:
+            return choices[0]
+        ret = None
+        while ret is None:
+            ret = random.choice(choices)
+        return ret
+
+    def canend(self, wordpair):
+        if not wordpair in self.db:
+            return True
+        return None in self.db[wordpair]
+
+    def words(self, min=5, max=50):
+        buf = [None, None]
+        pair = tuple(buf)
+        count = 0
+        while count < max and (count < min or not self.canend(pair)):
+            next = self.nextword(pair)
+            if next is None:
+                break
+            yield next
+            buf.append(next)
+            buf.pop(0)
+            pair = tuple(buf)
+            count += 1
+
+    def sentence(self, min=5, max=50):
+        words = self.words(min=min, max=max)
+        return ' '.join(words).capitalize()+'.'
 
 # vim:set ts=4 sw=4 expandtab:
