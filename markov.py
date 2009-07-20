@@ -10,7 +10,7 @@ class Parse(object):
         """
         if not endPunc in cls._sentenceReCache:
             cls._sentenceReCache[endPunc] = re.compile(
-                r"(.+?)["+endPunc+r"]\s*(.*)"
+                r"(.+?)["+endPunc+r"]\s*(.*)", re.S
             )
         sen = cls._sentenceReCache[endPunc]
 
