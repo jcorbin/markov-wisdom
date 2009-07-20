@@ -14,22 +14,19 @@ class Parse(object):
             )
         sen = cls._sentenceReCache[endPunc]
 
-        buf = []
+        buf = ''
         for chunk in iterable:
             chunk = chunk.strip()
             while len(chunk):
                 m = sen.match(chunk)
                 if m:
                     (frag, rest) = m.groups()
-                    if len(buf):
-                        buf.append(frag)
-                        yield ' '.join(buf)
-                        buf = []
-                    else:
-                        yield frag
+                    buf += frag
+                    yield buf
+                    buf = ''
                     chunk = rest
                 else:
-                    buf.append(chunk)
+                    buf += chunk
                     break
 
     _phraseReCache = {}
