@@ -10,9 +10,12 @@ class Parse(object):
         """
         if not endPunc in cls._sentenceReCache:
             cls._sentenceReCache[endPunc] = re.compile(
-                r"(.+?)["+endPunc+r"]\s*(.*)", re.S
+                r"(.+?)["+endPunc+r"](.*)", re.S
             )
         sen = cls._sentenceReCache[endPunc]
+        if not '__ws' in cls._sentenceReCache:
+            cls._sentenceReCache['__ws'] = re.compile(r"\s+")
+        ws = cls._sentenceReCache['__ws']
 
         buf = ''
         for chunk in iterable:
@@ -22,7 +25,7 @@ class Parse(object):
                 if m:
                     (frag, rest) = m.groups()
                     buf += frag
-                    yield buf
+                    yield ws.sub(' ', buf).strip()
                     buf = ''
                     chunk = rest
                 else:
