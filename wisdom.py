@@ -38,7 +38,8 @@ class wisdom(markov.Corpus):
                 lines = wordwrap(lines, wrap)
             for line in lines:
                 yield line
-            yield ''
+            if i is not size-1:
+                yield ''
 
 if __name__ == '__main__':
     w = wisdom('wisdom.txt')
