@@ -40,8 +40,9 @@ class wisdom(markov.Corpus):
                 yield line
             yield ''
 
-w = wisdom('wisdom.txt')
-for line in w.passage():
-    print line
+if __name__ == '__main__':
+    w = wisdom('wisdom.txt')
+    for line in w.passage():
+        print line
 
 # vim:set expandtab ts=4 sw=4:
