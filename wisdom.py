@@ -26,38 +26,25 @@ def wordwrap(source, width=40, sep=' '):
         yield sep.join(buf)
 
 class wisdom(object):
-    paragraphSize = (2, 5)
-    sentenceSize = (5, 20)
-
-    lineLength = 40
-
     def __init__(self, source):
         self.corpus = markov.Corpus(source)
 
-    def sens(self):
-        count = random.randint(
-            self.paragraphSize[0],
-            self.paragraphSize[1]
-        )
+    def verse(self, size=(1, 4), sentenceSize=(5, 20)):
+        count = random.randint(*size)
         for i in xrange(count):
-            yield self.corpus.sentence(
-                min=self.sentenceSize[0],
-                max=self.sentenceSize[1]
-            )
+            yield self.corpus.sentence(*sentenceSize)
 
-    def passage(self, paragraphs, formatted=True):
-        buf = ''
-        for i in xrange(paragraphs):
-            if formatted:
-                for line in wordwrap(self.sens(), self.lineLength):
-                    buf += line+"\n"
-                buf += "\n"
-            else:
-                for sen in self.sens():
-                    buf += sen+"\n\n"
-        return buf.strip()
+    def passage(self, size=(3, 6), wrap=40):
+        for i in xrange(random.randint(3, 6)):
+            lines = self.verse()
+            if wrap > 0:
+                lines = wordwrap(lines, wrap)
+            for line in lines:
+                yield line
+            yield ''
 
 w = wisdom('wisdom.txt')
-print w.passage(random.randint(3, 6))
+for line in w.passage():
+    print line
 
 # vim:set expandtab ts=4 sw=4:
