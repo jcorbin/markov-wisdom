@@ -53,8 +53,56 @@ class wisdom(markov.Corpus):
                 yield ''
 
 if __name__ == '__main__':
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option('-l', '--length', dest='length', default='40',
+        help='Line length to wrap to, zero for no wrapping'
+    )
+    parser.add_option('-w', '--words', dest='words',
+        default='5,20', metavar='MIN,MAX',
+        help='How many words per sentence.'
+    )
+    parser.add_option('-s', '--sentences', dest='sentences',
+        default='1,4', metavar='MIN,MAX',
+        help='How many sentences per verse.'
+    )
+    parser.add_option('-v', '--verses', dest='verses',
+        default='3,6', metavar='MIN,MAX',
+        help='How many verses per passage.'
+    )
+    (options, args) = parser.parse_args()
+
+    try:
+        options.length = int(options.length)
+    except ValueError:
+        parser.error('invalid length value')
+
+    def rangeVal(name, val):
+        val = val.split(',', 2) if ',' in val else [val]
+        try:
+            val = [int(s) for s in val]
+        except ValueError:
+            parser.error('invalid '+name+' value')
+        if len(val) == 1:
+            return val[0]
+        else:
+            return tuple(val)
+
+    options.words = rangeVal('words', options.words)
+    options.sentences = rangeVal('sentences', options.sentences)
+    options.verses = rangeVal('verses', options.verses)
+
+    if type(options.words) is not tuple:
+        parser.error('invalid words value')
+
     w = wisdom('wisdom.txt')
-    for line in w.passage():
+    passage = w.passage(
+        size         = options.verses,
+        verseSize    = options.sentences,
+        sentenceSize = options.words,
+        wrap         = options.length
+    )
+    for line in passage:
         print line
 
 # vim:set expandtab ts=4 sw=4:
