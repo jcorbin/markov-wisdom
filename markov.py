@@ -157,19 +157,22 @@ class Corpus(object):
             return True
         return None in self.db[wordpair]
 
-    def words(self, min=5, max=50, strictMax=False):
+    def words(self, min=5, max=50, strict=False):
         buf = [None, None]
         pair = tuple(buf)
         count = 0
         while count < min or not self.canend(pair):
             if count > max:
-                if strictMax:
+                if strict:
                     raise SentenceOverrun
                 else:
                     break
             next = self.nextword(pair)
             if next is None:
-                break
+                if count < min and strict:
+                    raise SentenceOverrun
+                else:
+                    break
             yield next
             buf.append(next)
             buf.pop(0)
@@ -179,7 +182,7 @@ class Corpus(object):
     def sentence(self, min=5, max=50):
         while True:
             try:
-                words = self.words(min, max, strictMax=True)
+                words = self.words(min, max, strict=True)
                 return ' '.join(words).capitalize()+'.'
             except SentenceOverrun:
                 pass
