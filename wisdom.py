@@ -26,14 +26,25 @@ def wordwrap(source, width=40, sep=' '):
         yield sep.join(buf)
 
 class wisdom(markov.Corpus):
-    def verse(self, size=(1, 4), sentenceSize=(5, 20)):
-        count = random.randint(*size)
-        for i in xrange(count):
-            yield self.sentence(*sentenceSize)
+    def passage(self,
+        size         = (3, 6),
+        verseSize    = (1, 4),
+        sentenceSize = (5, 20),
+        wrap         = 40
+    ):
+        def verse(size, senSize):
+            if type(size) is tuple:
+                size = random.randint(*size)
+            for i in xrange(size):
+                yield self.sentence(
+                    min=senSize[0],
+                    max=senSize[1]
+                )
 
-    def passage(self, size=(3, 6), wrap=40):
-        for i in xrange(random.randint(3, 6)):
-            lines = self.verse()
+        if type(size) is tuple:
+            size = random.randint(*size)
+        for i in xrange(size):
+            lines = verse(verseSize, sentenceSize)
             if wrap > 0:
                 lines = wordwrap(lines, wrap)
             for line in lines:
