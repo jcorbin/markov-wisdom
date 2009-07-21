@@ -103,6 +103,9 @@ class Parse(object):
                 buf.pop(0)
                 yield tuple(buf)
 
+class SentenceOverrun(Exception):
+    pass
+
 class Corpus(object):
     def __init__(self, source):
         self._source = source
@@ -154,11 +157,16 @@ class Corpus(object):
             return True
         return None in self.db[wordpair]
 
-    def words(self, min=5, max=50):
+    def words(self, min=5, max=50, strictMax=False):
         buf = [None, None]
         pair = tuple(buf)
         count = 0
-        while count < max and (count < min or not self.canend(pair)):
+        while count < min or not self.canend(pair):
+            if count > max:
+                if strictMax:
+                    raise SentenceOverrun
+                else:
+                    break
             next = self.nextword(pair)
             if next is None:
                 break
@@ -169,7 +177,11 @@ class Corpus(object):
             count += 1
 
     def sentence(self, min=5, max=50):
-        words = self.words(min=min, max=max)
-        return ' '.join(words).capitalize()+'.'
+        while True:
+            try:
+                words = self.words(min, max, strictMax=True)
+                return ' '.join(words).capitalize()+'.'
+            except SentenceOverrun:
+                pass
 
 # vim:set ts=4 sw=4 expandtab:
