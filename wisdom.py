@@ -25,14 +25,11 @@ def wordwrap(source, width=40, sep=' '):
     if len(buf):
         yield sep.join(buf)
 
-class wisdom(object):
-    def __init__(self, source):
-        self.corpus = markov.Corpus(source)
-
+class wisdom(markov.Corpus):
     def verse(self, size=(1, 4), sentenceSize=(5, 20)):
         count = random.randint(*size)
         for i in xrange(count):
-            yield self.corpus.sentence(*sentenceSize)
+            yield self.sentence(*sentenceSize)
 
     def passage(self, size=(3, 6), wrap=40):
         for i in xrange(random.randint(3, 6)):
