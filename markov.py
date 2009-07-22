@@ -1,6 +1,8 @@
 import re
 import random
 
+sentenceReCache = {}
+
 def fileChunks(f, size=1024):
     """
     Iterates a file in fixed-size chunks; the final chunk of course
@@ -12,40 +14,37 @@ def fileChunks(f, size=1024):
             break
         yield buf
 
+def sentences(iterable, endPunc=r"\.;"):
+    """
+    Iterates sentences in a source
+    """
+    if isinstance(iterable, file):
+        iterable = fileChunks(iterable)
+    if not endPunc in sentenceReCache:
+        sentenceReCache[endPunc] = re.compile(
+            r"(.+?)["+endPunc+r"](.*)", re.S
+        )
+    sen = sentenceReCache[endPunc]
+    if not '__ws' in sentenceReCache:
+        sentenceReCache['__ws'] = re.compile(r"\s+")
+    ws = sentenceReCache['__ws']
+
+    buf = ''
+    for chunk in iterable:
+        chunk = chunk.strip()
+        while len(chunk):
+            m = sen.match(chunk)
+            if m:
+                (frag, rest) = m.groups()
+                buf += frag
+                yield ws.sub(' ', buf).strip()
+                buf = ''
+                chunk = rest
+            else:
+                buf += chunk
+                break
+
 class Parse(object):
-    _sentenceReCache = {}
-
-    @classmethod
-    def sentences(cls, iterable, endPunc=r"\.;"):
-        """
-        Iterates sentences in a source
-        """
-        if isinstance(iterable, file):
-            iterable = fileChunks(iterable)
-        if not endPunc in cls._sentenceReCache:
-            cls._sentenceReCache[endPunc] = re.compile(
-                r"(.+?)["+endPunc+r"](.*)", re.S
-            )
-        sen = cls._sentenceReCache[endPunc]
-        if not '__ws' in cls._sentenceReCache:
-            cls._sentenceReCache['__ws'] = re.compile(r"\s+")
-        ws = cls._sentenceReCache['__ws']
-
-        buf = ''
-        for chunk in iterable:
-            chunk = chunk.strip()
-            while len(chunk):
-                m = sen.match(chunk)
-                if m:
-                    (frag, rest) = m.groups()
-                    buf += frag
-                    yield ws.sub(' ', buf).strip()
-                    buf = ''
-                    chunk = rest
-                else:
-                    buf += chunk
-                    break
-
     _phraseReCache = {}
 
     @classmethod
@@ -118,7 +117,7 @@ class Corpus(object):
         return source
 
     def phrases(self, trailing=(None, None)):
-        for sentence in Parse.sentences(self.source):
+        for sentence in sentences(self.source):
             sentence = sentence.lower()
             for phrase in Parse.phrases(sentence, trailing=trailing):
                 yield phrase
