@@ -15,12 +15,12 @@ def fileChunks(f, size=1024):
             break
         yield buf
 
-def sentences(iterable, endPunc=r"\.;"):
+def sentences(source, endPunc=r"\.;"):
     """
     Iterates sentences in a source
     """
-    if isinstance(iterable, file):
-        iterable = fileChunks(iterable)
+    if isinstance(source, file):
+        source = fileChunks(source)
     if not endPunc in sentenceReCache:
         sentenceReCache[endPunc] = re.compile(
             r"(.+?)["+endPunc+r"](.*)", re.S
@@ -31,7 +31,7 @@ def sentences(iterable, endPunc=r"\.;"):
     ws = sentenceReCache['__ws']
 
     buf = ''
-    for chunk in iterable:
+    for chunk in source:
         chunk = chunk.strip()
         while len(chunk):
             m = sen.match(chunk)
