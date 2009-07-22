@@ -1,19 +1,18 @@
 import re
 import random
 
-class Parse(object):
-    @classmethod
-    def fileChunks(cls, f, size=1024):
-        """
-        Iterates a file in fixed-size chunks; the final chunk of coruse
-        may, and most likely will be, be short.
-        """
-        while True:
-            buf = f.read(size)
-            if not len(buf):
-                break
-            yield buf
+def fileChunks(f, size=1024):
+    """
+    Iterates a file in fixed-size chunks; the final chunk of course
+    may, and most likely will be, be short.
+    """
+    while True:
+        buf = f.read(size)
+        if not len(buf):
+            break
+        yield buf
 
+class Parse(object):
     _sentenceReCache = {}
 
     @classmethod
@@ -22,7 +21,7 @@ class Parse(object):
         Iterates sentences in a source
         """
         if isinstance(iterable, file):
-            iterable = Parse.fileChunks(iterable)
+            iterable = fileChunks(iterable)
         if not endPunc in cls._sentenceReCache:
             cls._sentenceReCache[endPunc] = re.compile(
                 r"(.+?)["+endPunc+r"](.*)", re.S
