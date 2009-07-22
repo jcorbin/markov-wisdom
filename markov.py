@@ -26,9 +26,7 @@ def sentences(source, endPunc=r"\.;"):
             r"(.+?)["+endPunc+r"](.*)", re.S
         )
     sen = sentenceReCache[endPunc]
-    if not '__ws' in sentenceReCache:
-        sentenceReCache['__ws'] = re.compile(r"\s+")
-    ws = sentenceReCache['__ws']
+    ws = re.compile(r"\s+")
 
     buf = ''
     for chunk in source:
