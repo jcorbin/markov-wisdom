@@ -4,23 +4,10 @@ import random
 sentenceReCache = {}
 phraseReCache = {}
 
-def fileChunks(f, size=1024):
-    """
-    Iterates a file in fixed-size chunks; the final chunk of course
-    may, and most likely will be, be short.
-    """
-    while True:
-        buf = f.read(size)
-        if not len(buf):
-            break
-        yield buf
-
 def sentences(source, endPunc=r"\.;"):
     """
     Iterates sentences in a source
     """
-    if isinstance(source, file):
-        source = fileChunks(source)
     if not endPunc in sentenceReCache:
         sentenceReCache[endPunc] = re.compile(
             r"(.+?)["+endPunc+r"](.*)", re.S
@@ -35,12 +22,12 @@ def sentences(source, endPunc=r"\.;"):
             m = sen.match(chunk)
             if m:
                 (frag, rest) = m.groups()
-                buf += frag
+                buf += ' '+frag
                 yield ws.sub(' ', buf).strip()
                 buf = ''
                 chunk = rest
             else:
-                buf += chunk
+                buf += ' '+chunk
                 break
 
 def phrases(
