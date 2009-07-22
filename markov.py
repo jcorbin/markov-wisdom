@@ -92,12 +92,18 @@ class Corpus(object):
 
     @property
     def source(self):
+        """
+        The source material.
+        """
         source = self._source
         if type(source) == str:
             source = open(source, 'r')
         return source
 
-    def phrases(self, trailing=(None, None)):
+    def phrases(self, trailing=(1, 2)):
+        """
+        Yields phrases from each sentence in the source.
+        """
         for sentence in sentences(self.source):
             sentence = sentence.lower()
             for phrase in phrases(sentence, trailing=trailing):
@@ -105,9 +111,13 @@ class Corpus(object):
 
     @property
     def db(self):
+        """
+        The phrase database, a mapping of word pairs to list of
+        possibile following words.
+        """
         if self._db is None:
             db = {}
-            for phrase in self.phrases(trailing=(1, 2)):
+            for phrase in self.phrases():
                 key = (phrase[0], phrase[1])
                 if not key in db:
                     db[key] = set()
@@ -116,6 +126,12 @@ class Corpus(object):
         return self._db
 
     def nextword(self, wordpair=None):
+        """
+        Returns a randomly chosen word following a given pair.
+
+        It is possible that the only possibilyt for the pair is to end
+        a sentence, in which case None is returned.
+        """
         if wordpair is None:
             wordpair = (None, None)
         if not wordpair in self.db:
@@ -129,11 +145,23 @@ class Corpus(object):
         return ret
 
     def canend(self, wordpair):
+        """
+        Test whether the wordpair can end a sentence.
+        """
         if not wordpair in self.db:
             return True
         return None in self.db[wordpair]
 
     def words(self, min=5, max=50, strict=False):
+        """
+        Yields a sequence of words between min and max words long by
+        repeatedly calling nextword.
+
+        When max is hit, the sequence will end even if canend says the
+        current pair cannot end a sentence; this can be mitigated by
+        setting struct to True, in which case a SentenceOverrun
+        exception is raised.
+        """
         buf = [None, None]
         pair = tuple(buf)
         count = 0
@@ -156,6 +184,10 @@ class Corpus(object):
             count += 1
 
     def sentence(self, min=5, max=50):
+        """
+        Returns a sentence between min and max words long, the sentence
+        will end in a valid-ending word pair.
+        """
         while True:
             try:
                 words = self.words(min, max, strict=True)
