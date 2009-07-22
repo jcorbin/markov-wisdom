@@ -103,19 +103,16 @@ class Corpus(object):
             for phrase in phrases(sentence, trailing=trailing):
                 yield phrase
 
-    def buildDb(self):
-        db = {}
-        for phrase in self.phrases(trailing=(1, 2)):
-            key = (phrase[0], phrase[1])
-            if not key in db:
-                db[key] = set()
-            db[key].add(phrase[2])
-        return db
-
     @property
     def db(self):
         if self._db is None:
-            self._db = self.buildDb()
+            db = {}
+            for phrase in self.phrases(trailing=(1, 2)):
+                key = (phrase[0], phrase[1])
+                if not key in db:
+                    db[key] = set()
+                db[key].add(phrase[2])
+            self._db = db
         return self._db
 
     def nextword(self, wordpair=None):
