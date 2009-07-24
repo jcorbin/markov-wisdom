@@ -109,6 +109,18 @@ class Corpus(object):
             for phrase in phrases(sentence, trailing=trailing):
                 yield phrase
 
+    def _build(self):
+        """
+        Builds the phrase database.
+        """
+        db = {}
+        for phrase in self.phrases():
+            key = (phrase[0], phrase[1])
+            if not key in db:
+                db[key] = set()
+            db[key].add(phrase[2])
+        self._db = db
+
     @property
     def db(self):
         """
@@ -116,13 +128,7 @@ class Corpus(object):
         possibile following words.
         """
         if self._db is None:
-            db = {}
-            for phrase in self.phrases():
-                key = (phrase[0], phrase[1])
-                if not key in db:
-                    db[key] = set()
-                db[key].add(phrase[2])
-            self._db = db
+            self._build()
         return self._db
 
     def nextword(self, wordpair=None):
