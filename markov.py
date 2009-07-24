@@ -88,7 +88,7 @@ class SentenceOverrun(Exception):
 class Corpus(object):
     def __init__(self, source):
         self._source = source
-        self._db = None
+        self._links = None
 
     @property
     def source(self):
@@ -113,23 +113,23 @@ class Corpus(object):
         """
         Builds the phrase database.
         """
-        db = {}
+        links = {}
         for phrase in self.phrases():
             key = (phrase[0], phrase[1])
-            if not key in db:
-                db[key] = set()
-            db[key].add(phrase[2])
-        self._db = db
+            if not key in links:
+                links[key] = set()
+            links[key].add(phrase[2])
+        self._links = links
 
     @property
-    def db(self):
+    def links(self):
         """
         The phrase database, a mapping of word pairs to list of
         possibile following words.
         """
-        if self._db is None:
+        if self._links is None:
             self._build()
-        return self._db
+        return self._links
 
     def nextword(self, wordpair=None):
         """
@@ -140,9 +140,9 @@ class Corpus(object):
         """
         if wordpair is None:
             wordpair = (None, None)
-        if not wordpair in self.db:
+        if not wordpair in self.links:
             return None
-        choices = list(self.db[wordpair])
+        choices = list(self.links[wordpair])
         if len(choices) == 1:
             return choices[0]
         ret = None
@@ -154,9 +154,9 @@ class Corpus(object):
         """
         Test whether the wordpair can end a sentence.
         """
-        if not wordpair in self.db:
+        if not wordpair in self.links:
             return True
-        return None in self.db[wordpair]
+        return None in self.links[wordpair]
 
     def words(self, min=5, max=50, strict=False):
         """
