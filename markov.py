@@ -165,6 +165,16 @@ class Corpus(object):
             ret = random.choice(choices)
         return ret
 
+    def formatword(self, word):
+        """
+        Returns the formatted form of the word, i.e. how it originally
+        appeared in the source; the input word is in normalized form as
+        contained in links.
+        """
+        if word is None:
+            return word
+        return self.form[word] if word in self.form else word
+
     def canend(self, wordpair):
         """
         Test whether the wordpair can end a sentence.
