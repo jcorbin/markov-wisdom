@@ -4,7 +4,7 @@ import random
 sentenceReCache = {}
 phraseReCache = {}
 
-def sentences(source, endPunc=r"\.;"):
+def sentences(source, endPunc=r"\.:;\?!"):
     """
     Iterates sentences in a source
     """
