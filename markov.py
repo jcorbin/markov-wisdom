@@ -223,7 +223,7 @@ class Corpus(object):
             try:
                 words = self.words(min, max, strict=True)
                 s = ' '.join(words)
-                return s.capitalize()+'.'
+                return s[0].upper()+s[1:]+'.'
             except SentenceOverrun:
                 pass
 
