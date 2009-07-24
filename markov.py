@@ -89,6 +89,7 @@ class Corpus(object):
     def __init__(self, source):
         self._source = source
         self._links = None
+        self._form = None
 
     @property
     def source(self):
@@ -105,21 +106,29 @@ class Corpus(object):
         Yields phrases from each sentence in the source.
         """
         for sentence in sentences(self.source):
-            sentence = sentence.lower()
             for phrase in phrases(sentence, trailing=trailing):
                 yield phrase
 
     def _build(self):
         """
-        Builds the phrase database.
+        Builds the phrase and form database.
         """
         links = {}
+        form = {}
         for phrase in self.phrases():
+            if phrase[1] is not None and phrase[2] is not None:
+                (a, b) = (phrase[2].lower(), phrase[2])
+                if a != b:
+                    form[a] = b
+            phrase = tuple(
+                None if s is None else s.lower() for s in phrase
+            )
             key = (phrase[0], phrase[1])
             if not key in links:
                 links[key] = set()
             links[key].add(phrase[2])
         self._links = links
+        self._form = form
 
     @property
     def links(self):
@@ -130,6 +139,12 @@ class Corpus(object):
         if self._links is None:
             self._build()
         return self._links
+
+    @property
+    def form(self):
+        if self._form is None:
+            self._build()
+        return self._form
 
     def nextword(self, wordpair=None):
         """
