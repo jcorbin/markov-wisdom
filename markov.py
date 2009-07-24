@@ -222,7 +222,8 @@ class Corpus(object):
         while True:
             try:
                 words = self.words(min, max, strict=True)
-                return ' '.join(words).capitalize()+'.'
+                s = ' '.join(words)
+                return s.capitalize()+'.'
             except SentenceOverrun:
                 pass
 
