@@ -7,6 +7,11 @@ from wisdom import wisdom
 from optparse import OptionParser
 
 parser = OptionParser()
+parser.add_option('-f', '--file', dest='file', default=None,
+    help=
+        'Source file, defaults can be "wisdom.txt" in cwd or the '+
+        'directory that the script comes from'
+)
 parser.add_option('-l', '--length', dest='length', default='40',
     help='Line length to wrap to, zero for no wrapping'
 )
@@ -23,6 +28,18 @@ parser.add_option('-v', '--verses', dest='verses',
     help='How many verses per passage.'
 )
 (options, args) = parser.parse_args()
+
+if options.file is None:
+    for path in (
+        os.getcwd(),
+        os.path.dirname(os.path.realpath(sys.argv[0]))
+    ):
+        path = os.path.join(path, 'wisdom.txt')
+        if os.path.isfile(path):
+            options.file = path
+            break
+    else:
+        parser.error('please provide a source file')
 
 try:
     options.length = int(options.length)
@@ -47,10 +64,7 @@ options.verses = rangeVal('verses', options.verses)
 if type(options.words) is not tuple:
     parser.error('invalid words value')
 
-path = os.path.realpath(sys.argv[0])
-path = os.path.dirname(path)
-path = os.path.join(path, 'wisdom.txt')
-w = wisdom(path)
+w = wisdom(options.file)
 passage = w.passage(
     size         = options.verses,
     verseSize    = options.sentences,
