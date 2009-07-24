@@ -222,6 +222,7 @@ class Corpus(object):
         while True:
             try:
                 words = self.words(min, max, strict=True)
+                words = (self.formatword(word) for word in words)
                 s = ' '.join(words)
                 return s[0].upper()+s[1:]+'.'
             except SentenceOverrun:
